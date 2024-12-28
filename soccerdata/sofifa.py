@@ -407,6 +407,18 @@ class SoFIFA(BaseRequestsReader):
 
         # define labels to use for score extraction from player profile pages
         score_labels = [
+            "Preferred foot",
+            "Best position",
+            "Position",
+            "Joined",
+            "Contract valid until",
+            "Kit number",
+            "birthDate",
+            "height",
+            "weight",
+            "jobTitle",
+            "nationality",
+            "netWorth",
             "Overall rating",
             "Potential",
             "Crossing",
@@ -442,7 +454,7 @@ class SoFIFA(BaseRequestsReader):
             "GK Handling",
             "GK Kicking",
             "GK Positioning",
-            "GK Reflexes",
+            "GK Reflexes"
         ]
 
         iterator = list(product(self.versions.iterrows(), players))
@@ -467,17 +479,52 @@ class SoFIFA(BaseRequestsReader):
                 **version.to_dict(),
             }
             for s in score_labels:
-                nodes = tree.xpath(
-                    "(//li[not(self::script)] | //div | //p)"
-                    f"[.//text()[contains(.,'{s}')]]"
-                    "/em"
-                )
-                # for multiple matches, only accept first match
-                if len(nodes) >= 1:
-                    scores[s] = nodes[0].text.strip()
-                # if there's no match, put NA
-                else:
+                try:
+                    nodes = tree.xpath(
+                        "(//li[not(self::script)] | //div | //p)"
+                        f"[.//text()[contains(.,'{s}')]]"
+                        "/em"
+                    )
+                    if not nodes:
+                        nodes = tree.xpath(
+                            f"//p[label[contains(text(),'{s}')]]/text()"
+                        )
+                        if nodes and nodes[0].strip() == "":
+                            nodes = []
+                    if not nodes:
+                        nodes = tree.xpath(
+                            f"//p[label[contains(text(),'{s}')]]/span[@class='pos pos25']/text()"
+                        )
+                    if not nodes:
+                        nodes = tree.xpath(
+                            f"//p[label[contains(text(),'{s}')]]/text()"
+                        )
+                    if not nodes:
+                        try:
+                            nodes = json.loads(
+                                tree.xpath(
+                                    "//script[@type='application/ld+json']/text()"
+                                )[0])[s]
+                        except:
+                            nodes = []
+                    # for multiple matches, only accept first match
+                    if len(nodes) >= 1:
+                        try:
+                            scores[s] = nodes[0].text.strip()
+                        except:
+                            try:
+                                if isinstance(nodes, str):
+                                    scores[s] = nodes.strip()
+                                elif isinstance(nodes, list):
+                                    scores[s] = nodes[0].strip()
+                            except:
+                                scores[s] = None
+                    # if there's no match, put NA
+                    else:
+                        scores[s] = None
+                except:
                     scores[s] = None
+                scores["player_id"] = player
             ratings.append(scores)
         # return data frame
         return pd.DataFrame(ratings).pipe(standardize_colnames).set_index(["player"]).sort_index()
