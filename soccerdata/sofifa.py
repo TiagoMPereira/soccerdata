@@ -419,8 +419,14 @@ class SoFIFA(BaseRequestsReader):
             "jobTitle",
             "nationality",
             "netWorth",
+            "Body type",
+            "Release clause",
+            "Work rate",
+            "Acceleration Type",
             "Overall rating",
             "Potential",
+            "Value",
+            "Wage",
             "Crossing",
             "Finishing",
             "Heading accuracy",
@@ -525,6 +531,41 @@ class SoFIFA(BaseRequestsReader):
                 except:
                     scores[s] = None
                 scores["player_id"] = player
+            
+            # Extracting lineup scores
+            lineup = tree.xpath("//div[@class='lineup']")
+            lineup_scores = {}
+            if lineup:
+                lineup = lineup[0]
+                positions = lineup.xpath("//div[contains(@class, 'pos')]")
+                for pos in positions:
+                    try:
+                        lineup_scores[f"lineup_{pos.text}"] = pos.xpath("./em/@title")[0]
+                    except:
+                        continue
+            scores |= lineup_scores
+
+            # Player specialities
+            try:
+                specialities = tree.xpath("//div[h5[text()='Player specialities']]//p//a/text()")
+                scores["specialities"] = ",".join(specialities)
+            except:
+                pass
+
+            # Last appearence on national team
+            national_team_table = tree.xpath("//table[.//th[text()='National team']]")
+            try:
+                national_team_last_appearence = national_team_table[0].xpath("//tr[1]//td[3]//text()")[-1]
+                scores["national_team_last_appearence"] = national_team_last_appearence
+            except:
+                pass
+
+            # Transfermarkt link
+            try:
+                transfermarkt_link = tree.xpath("//a[text()='Transfermarkt']")[0].attrib["href"]
+                scores["transfermarkt_link"] = transfermarkt_link
+            except:
+                pass
             ratings.append(scores)
         # return data frame
         return pd.DataFrame(ratings).pipe(standardize_colnames).set_index(["player"]).sort_index()
