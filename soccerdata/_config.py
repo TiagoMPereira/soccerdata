@@ -93,7 +93,6 @@ else:
     )
 
 
-# League dict
 LEAGUE_DICT = {
     "ENG-Premier League": {
         "ClubElo": "ENG_1",
@@ -162,6 +161,31 @@ LEAGUE_DICT = {
         "SoFIFA": "[France] Ligue 1",
         "Understat": "Ligue 1",
         "WhoScored": "France - Ligue 1",
+        "season_start": "Aug",
+        "season_end": "May",
+    },
+    "USA-Major League Soccer": {
+        "SoFIFA": "[United States] Major League Soccer",
+        "season_start": "Aug",
+        "season_end": "May",
+    },
+    "POR-Primeira Liga": {
+        "SoFIFA": "[Portugal] Primeira Liga",
+        "season_start": "Aug",
+        "season_end": "May",
+    },
+    "SAU-Pro League": {
+        "SoFIFA": "[Saudi Arabia] Pro League",
+        "season_start": "Aug",
+        "season_end": "May",
+    },
+    "NED-Eredivisie": {
+        "SoFIFA": "[Netherlands] Eredivisie",
+        "season_start": "Aug",
+        "season_end": "May",
+    },
+    "TUR-Süper Lig": {
+        "SoFIFA": "[Türkiye] Süper Lig",
         "season_start": "Aug",
         "season_end": "May",
     },
