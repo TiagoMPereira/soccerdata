@@ -555,7 +555,7 @@ class SoFIFA(BaseRequestsReader):
             # Last appearence on national team
             national_team_table = tree.xpath("//table[.//th[text()='National team']]")
             try:
-                national_team_last_appearence = national_team_table[0].xpath("//tr[1]//td[3]//text()")[-1]
+                national_team_last_appearence = national_team_table[0].xpath(".//tr[1]//td[3]//text()")[-1]
                 scores["national_team_last_appearence"] = national_team_last_appearence
             except:
                 pass
